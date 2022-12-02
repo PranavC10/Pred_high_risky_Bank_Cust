@@ -30,5 +30,7 @@ churn.value_counts().plot(kind='pie')
 plt.xlabel('# of Churn by country', fontsize=12)
 plt.show()
 
+
+
 print('\n','French has the highest number of customers churned.','\n')
 # %%
