@@ -6,6 +6,8 @@ import numpy as np
 import seaborn as sns 
 import matplotlib.pyplot as plt
 import plotly
+import plotly.graph_objects as go
+import plotly.express as px
 
 
 # %%
@@ -26,3 +28,28 @@ df.info()
 df.isnull().sum()
 # %%
 ### Univariate Analysis 
+## Plotting pie char to understand % of customer exited 
+labels = ["Current Customers","Exited Customers"]
+values = list(df["Exited"].value_counts()[0:2])
+
+# pull is given as a fraction of the pie radius
+fig = go.Figure(data=[go.Pie(labels=labels,textinfo='label+percent', values=values, pull=[0, 0.2])])
+fig.show()
+
+
+# %%
+
+fig = px.box(df, x="Exited", y="CreditScore")
+fig.update_traces(quartilemethod="exclusive") # or "inclusive", or "linear" by default
+fig.show()
+
+# %%
+fig = px.box(df, x="Exited", y="Balance")
+fig.update_traces(quartilemethod="exclusive") # or "inclusive", or "linear" by default
+fig.show()
+
+# %%
+fig = px.box(df, x="Exited", y="EstimatedSalary")
+fig.update_traces(quartilemethod="exclusive") # or "inclusive", or "linear" by default
+fig.show()
+# %%
