@@ -17,9 +17,9 @@ df.tail()
 # %%
 # Separate each country from Dataset
 geo = df['Geography']
-churnF = df[df['Geography'] == 'France']
-churnG = df[df['Geography'] == 'Germany']
-churnS = df[df['Geography'] == 'Spain']
+F = df[df['Geography'] == 'France']
+G = df[df['Geography'] == 'Germany']
+S = df[df['Geography'] == 'Spain']
 
 # General description of countries
 df['Geography'].describe()
@@ -28,9 +28,26 @@ df['Geography'].describe()
 churn = df['Geography']
 churn.value_counts().plot(kind='pie')
 plt.xlabel('# of Churn by country', fontsize=12)
+plt.savefig('pie_country_distribution')
 plt.show()
 
+# Distribution of each country in the dataset 
 
+# Separate each country into churn and not churn
+churnF = F[F['Exited'] == 1]
+notchurnF = F[F['Exited'] == 0]
+churnG = G[G['Exited'] == 1]
+notchurnG = G[G['Exited'] == 0]
+churnS = S[S['Exited'] == 1]
+notchurnS = S[S['Exited'] == 0]
+
+plt.hist([churnF,notchurnF], label='age',edgecolor='black', linewidth=1.2,alpha = 0.7)
+plt.hist([churnG,notchurnG], label='age',edgecolor='black', linewidth=1.2,alpha = 0.7)
+plt.hist([churnS,notchurnS], label='age',edgecolor='black', linewidth=1.2,alpha = 0.7)
+plt.xlabel('Age of Both Male & Female')
+plt.ylabel('Number of People')
+plt.savefig('hist_educ.png')
+plt.show()
 
 print('\n','French has the highest number of customers churned.','\n')
 # %%
