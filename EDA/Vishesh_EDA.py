@@ -36,7 +36,7 @@ fig.update_layout(
 fig.show()
 
 print(h1 + "Finding:" + e + s1 + "Credit score in general does not have an impact on the churn rate, but in the grpah we can see that Credit score and Churn rate are normally distributed and the maximum population have credit score between 600-700 and this population has highest churn rate as well. Also we can see that churn rate is directely proportional to population. Greater the population in the bin greatr is the churn rate" + e)
-print()
+
 
 # %%
 #2 Balance vs churn rate
@@ -53,9 +53,11 @@ fig.update_layout(
 fig.show()
 
 
-fig = px.histogram(Bank_data, x="Balance", color="Exited",
-                   marginal="box")
-fig.show()
+#fig = px.histogram(Bank_data, x="Balance", color="Exited",
+#                   marginal="box")
+#fig.show()
+
+print(h1 + "Finding:" + e + s1 + "From the graph we can see that people with higher balance tend to churn more than the one with the low balance." + e)
 
 # %%
 #3 Estimated salary vs churn rate
@@ -64,12 +66,15 @@ fig = px.box(Bank_data, x="EstimatedSalary", color="Exited", title="Impact of Cu
 
 fig.update_layout(
     title="Impact of Customer Balance on customer churn rate",
-    xaxis_title="Customer Balance",
+    xaxis_title="Estimated Salary",
     yaxis_title="Count",
     legend_title="Exited"
 )
 
 fig.show()
+
+print(h1 + "Finding:" + e + s1 + "From the graph we can see that Estimated Salary does not have much effect on the customer churn rate the difference is very minute. " + e)
+
 
 # %%
 
@@ -86,6 +91,8 @@ fig.update_layout(
 
 fig.show()
 
+print(h1 + "Finding:" + e + s1 + "The graph is right skewed for the reatined customer, but the graph looks slightly normal for the exited customers. It can be seen that customer tend to churn more between the age of 40-60." + e)
+
 # %%
 
 # Customer churn rate based on Gender
@@ -96,5 +103,6 @@ fig.show()
 #fig = px.pie(Bank_data, values='Exited', names='Gender')
 #fig.show()
 
+print(h1 + "Finding:" + e + s1 + "Even though the count of Male customer is more than the Female customer, the churn couunt of female customer is more than the male customer " + e)
 
 # %%
