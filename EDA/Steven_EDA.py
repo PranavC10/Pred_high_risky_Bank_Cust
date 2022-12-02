@@ -28,4 +28,5 @@ churn = df['Geography']
 churn.value_counts().plot(kind='pie')
 plt.xlabel('# of Churn by country', fontsize=12)
 plt.show()
+
 # %%
