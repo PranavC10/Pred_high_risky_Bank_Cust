@@ -52,7 +52,18 @@ plt.legend(loc = 0)
 plt.savefig('Country churn.png')
 plt.show()
 
+# Numbers of churn by country
+print('Total Numbers of France customers churned',len(churnF))
+print('Total Numbers of Germany customers churned',len(churnG))
+print('Total Numbers of Spain customers churned',len(churnS))
 
+# Churn rate of each country
+print('France churn rate',round(len(churnF)/len(F)*100,2))
+print('Germany churn rate',round(len(churnG)/len(G)*100,2))
+print('Spain churn rate',round(len(churnS)/len(S)*100,2))
 
-print('\n','French has the highest number of customers churned.','\n')
+print('\n')
+print('Germany has the highest number of customers churned among all countries with 814 customers churned.')
+print('\n')
+print('Germany also has the highest churn rate of 32.44%','\n')
 # %%
