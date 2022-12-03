@@ -40,14 +40,19 @@ churnG = G[G['Exited'] == 1]
 notchurnG = G[G['Exited'] == 0]
 churnS = S[S['Exited'] == 1]
 notchurnS = S[S['Exited'] == 0]
+#height = [1500,2000,2500,3000,3500,4000,4500,5000,5500]
 
-plt.hist([churnF,notchurnF], label='age',edgecolor='black', linewidth=1.2,alpha = 0.7)
-plt.hist([churnG,notchurnG], label='age',edgecolor='black', linewidth=1.2,alpha = 0.7)
-plt.hist([churnS,notchurnS], label='age',edgecolor='black', linewidth=1.2,alpha = 0.7)
-plt.xlabel('Age of Both Male & Female')
+plt.xticks(np.arange(0,1.1, step=1))
+plt.hist([churnF['Exited'],notchurnF['Exited'],churnG['Exited'],notchurnG['Exited'],churnS['Exited'],notchurnS['Exited']], 
+        label=['France churn','France not churn','Germany churn','Germany not churn','Spain churn','Spain not churn'],
+        histtype = 'bar', rwidth = 1,bins=[0, 1],edgecolor = 'black')
+plt.xlabel('Churn and not churn')
 plt.ylabel('Number of People')
-plt.savefig('hist_educ.png')
+plt.legend(loc = 0)
+plt.savefig('Country churn.png')
 plt.show()
+
+
 
 print('\n','French has the highest number of customers churned.','\n')
 # %%
