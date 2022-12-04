@@ -4,6 +4,7 @@
 import pandas as pd
 import numpy as np
 import pickle as pk
+from sklearn.metrics import classification_report
 
 
 # %%
@@ -31,4 +32,8 @@ clf.fit(x_train, y_train)
 # %%
 print(clf.score(x_train,y_train))
 print(clf.score(x_test,y_test))
+# %%
+y_test_pred = clf.predict(x_test)
+print(classification_report(y_test, y_test_pred))
+
 # %%

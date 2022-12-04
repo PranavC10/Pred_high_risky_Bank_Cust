@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objects as go
 import plotly.express as px
+import os
 
 
 # %%
@@ -34,7 +35,15 @@ values = list(df["Exited"].value_counts()[0:2])
 
 # pull is given as a fraction of the pie radius
 fig = go.Figure(data=[go.Pie(labels=labels,textinfo='label+percent', values=values, pull=[0, 0.2])])
+if not os.path.exists("plot_images"):
+    os.mkdir("plot_images")
+
+
 fig.show()
+
+
+#fig.write_image(r"C:\Users\Pranav\My Projects\T1-Data_Ninjas-22FA\EDA\plot_images\piechart.png")
+
 
 
 # %%
