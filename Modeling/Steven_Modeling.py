@@ -26,3 +26,8 @@ print("Test Data Shape")
 print(x_test.shape)
 print(y_test.shape)
 # %%
+#KNN Model
+#Import KNN package
+from sklearn.neighbors import KNeighborsClassifier
+
+# %%
