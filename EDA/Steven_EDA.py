@@ -66,4 +66,7 @@ print('\n')
 print('Germany has the highest number of customers churned among all countries with 814 customers churned.')
 print('\n')
 print('Germany also has the highest churn rate of 32.44%','\n')
+
 # %%
+
+
