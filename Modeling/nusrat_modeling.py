@@ -26,6 +26,6 @@ sns.heatmap(df.corr(),annot=True)
 plt.show()
 modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)', data=df, family=sm.families.Binomial()).fit()
 print(modelCreditScore.summary())
-#modelpredicitons = pd.DataFrame( columns=['survival_titanic'], data= modelsurvival.predict(titanic)) 
-#print(modelpredicitons.head())
+modelpredicitons = pd.DataFrame( columns=['CreditScore_df'], data= modelCreditScore.predict(df)) 
+print(modelpredicitons.head())
 # %%
