@@ -7,6 +7,10 @@ import pickle as pk
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
 from sklearn.svm import SVC
+from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score
+
+
 # %%
 ## Loading preprocessed data using pickle
 
@@ -91,4 +95,51 @@ print(SVM_tuned.score(x_test,y_test))
 y_test_pred = SVM_tuned.predict(x_test)
 
 print(classification_report(y_test, y_test_pred))
+# %%
+## XGBOOST 
+xgb = XGBClassifier(objective='binary:logistic')
+xgb.fit(x_train, y_train)
+
+y_pred = xgb.predict(x_train)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(y_train,predictions)
+print(accuracy)
+
+y_pred = xgb.predict(x_test)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(y_test,predictions)
+print(accuracy)
+
+print(classification_report(y_test, predictions))
+
+# %%
+### Hyperparameter tuning xgboost
+
+param_grid={
+   
+    'learning_rate':[1,0.5,0.1,0.01,0.001],
+    'max_depth': [3,5,10,20],
+    'n_estimators':[10,50,100,200]
+    
+}
+grid_xgb= GridSearchCV(XGBClassifier(objective='binary:logistic'),param_grid, verbose=3,eval)
+grid_xgb.fit(x_train,y_train)
+print(grid_xgb.best_params_)
+
+
+# %%
+xgb_tuned = XGBClassifier(objective='binary:logistic',learning_rate =0.5,max_depth = 10,n_estimators = 200)
+xgb_tuned.fit(x_train, y_train)
+
+y_pred = xgb_tuned.predict(x_train)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(y_train,predictions)
+print(accuracy)
+
+y_pred = xgb_tuned.predict(x_test)
+predictions = [round(value) for value in y_pred]
+accuracy = accuracy_score(y_test,predictions)
+print(accuracy)
+
+print(classification_report(y_test, predictions))
 # %%
