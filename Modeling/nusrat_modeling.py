@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objects as go
 import plotly.express as px
+import statsmodels.api as sm
+from statsmodels.formula.api import glm
+from statsmodels.formula.api import ols
 import rfit
 
 #%%
@@ -17,6 +20,12 @@ df.drop(['RowNumber', 'CustomerId', 'Surname'], axis=1, inplace=True)
 df.head()
 df.tail()
 df.isnull().sum().to_frame(' Nulls values ')
+
 # %%
-plt.figure(figsize=(15, 8))
-sns.heatmap(data=df.corr(), annot=True, fmt='.1g')
+sns.heatmap(df.corr(),annot=True)
+plt.show()
+modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)', data=df, family=sm.families.Binomial()).fit()
+print(modelCreditScore.summary())
+#modelpredicitons = pd.DataFrame( columns=['survival_titanic'], data= modelsurvival.predict(titanic)) 
+#print(modelpredicitons.head())
+# %%
