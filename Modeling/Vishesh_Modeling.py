@@ -21,3 +21,18 @@ print(y_train.shape)
 print("Test Data Shape")
 print(x_test.shape)
 print(y_test.shape)
+
+# %%
+
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import classification_report
+clf = GaussianNB()
+clf.fit(x_train, y_train)
+
+# %%
+print(clf.score(x_train,y_train))
+print(clf.score(x_test,y_test))
+# %%
+
+y_pred=clf.predict(x_test)
+print(classification_report(y_test,y_pred))
