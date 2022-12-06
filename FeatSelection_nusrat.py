@@ -42,3 +42,49 @@ stats.chi2_contingency(crosstable3)
 #Finding: Here p is 0.511 which is grater than o.o5. That reject null hypothesis.
 # It can be said that Card Balance depends on Gender
 
+# Let check wheather Card Balance depends on Region
+crosstable4=pd.crosstab(df['Geography'], df['Balance'])
+print(crosstable4)
+stats.chi2_contingency(crosstable4)
+
+#Finding: Here p is 4.88e^-46 which is less than o.o5. That accept null hypothesis.
+# It can be said that Card Balance is not depend on Region
+
+#Let's check active member depends on gender or not
+
+crosstable5=pd.crosstab(df['IsActiveMember'], df['Gender'])
+print(crosstable5)
+stats.chi2_contingency(crosstable5)
+
+#Finding: Here p is 0.0254 which is less than o.o5. That accept the null hypothesis.
+#Acrive member is not depend on gender.
+
+#Let's check active member depends on Region or not
+
+crosstable6=pd.crosstab(df['IsActiveMember'], df['Geography'])
+print(crosstable6)
+stats.chi2_contingency(crosstable6)
+
+#Finding: Here p is 0.070 which is grater than o.o5. That reject the null hypothesis.
+#Acrive member depends on Region.
+
+#Let's check  Card Holder depends on gender or not
+
+crosstable7=pd.crosstab(df['HasCrCard'], df['Gender'])
+print(crosstable7)
+stats.chi2_contingency(crosstable7)
+
+#Finding: Here p is 0.579 which is grater than o.o5. That reject the null hypothesis.
+#Card Holder depends on gender.
+
+#Let's check Card Holder depends on Region or not
+
+crosstable8=pd.crosstab(df['HasCrCard'], df['Geography'])
+print(crosstable8)
+stats.chi2_contingency(crosstable8)
+
+#Finding: Here p is 0.327 which is grater than o.o5. That reject the null hypothesis.
+#Card Holder depends on region.
+
+
+

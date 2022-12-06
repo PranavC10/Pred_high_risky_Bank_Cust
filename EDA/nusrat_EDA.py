@@ -31,6 +31,14 @@ creditscore_count = df['CreditScore'].value_counts()
 print(creditscore_count)
 
 sns.boxplot(data=df, x="CreditScore")
+sns.countplot(x='Exited', data=df)
+
+plt.figure(figsize=(15, 8))
+sns.boxplot(x='CreditScore', y='Exited', data=df, orient='h')
+plt.xlabel('Credit Score', fontsize=15)
+plt.ylabel('Exited', fontsize=15)
+plt.title('Credit Score relation with Churn', fontsize=15)
+plt.show()
 
 # %%
 print('Histogram of CreditScore  by CreditCard')
@@ -38,18 +46,7 @@ df.hist(column='CreditScore', by='HasCrCard', grid=True, xlabelsize=None, xrot=N
             ylabelsize=None, yrot=None, ax=None, sharex=False, sharey=False,
             figsize=None, layout=None, bins=30, backend=None, legend=True)
 # %%
-#Test of Independence
-# chi Squre test
-# Let check wheather gender has an effet on CreditScore or not
 
-from scipy import stats
-# World1
-crosstable1=pd.crosstab(df['Gender'], df['CreditScore'])
-print(crosstable1)
-stats.chi2_contingency(crosstable1)
-
-#Finding: Here p is 0.379 which is grater than o.o5. That reject null hypothesis.
-# It can be said that CreditScore has a relation with the varialble gender.
 
 # %%
 
