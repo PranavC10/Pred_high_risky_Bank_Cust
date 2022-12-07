@@ -88,3 +88,5 @@ stats.chi2_contingency(crosstable8)
 
 
 
+
+# %%
