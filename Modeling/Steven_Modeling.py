@@ -44,6 +44,7 @@ print(knn_split.score(x_test,y_test))
 # %%
 knn_cv = KNeighborsClassifier(n_neighbors=3)
 from sklearn.model_selection import cross_val_score
-cv_results = cross_val_score(knn_cv, xadmit, yadmit, cv=10)
+cv_results = cross_val_score(knn_cv, x_train, y_train, cv=10)
 print(cv_results) 
 print(np.mean(cv_results)) 
+# %%
