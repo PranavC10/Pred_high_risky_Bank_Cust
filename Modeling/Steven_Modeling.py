@@ -28,23 +28,30 @@ print(y_test.shape)
 # %%
 #KNN Model
 #Import KNN package
-knn = KNeighborsClassifier(n_neighbors=3) # instantiate with n value given
+knn = KNeighborsClassifier(n_neighbors=1) # instantiate with n value given
 knn.fit(x_train,y_train)
 y_pred = knn.predict(x_train)
 y_pred = knn.predict_proba(x_train)
 print(y_pred)
 print(knn.score(x_train,y_train))
+print('\n','Next Line')
 from sklearn.neighbors import KNeighborsClassifier
-knn_split = KNeighborsClassifier(n_neighbors=3)
+knn_split = KNeighborsClassifier(n_neighbors=1)
 knn_split.fit(x_train,y_train)
 ytest_pred = knn_split.predict(x_test)
 ytest_pred
 print(knn_split.score(x_test,y_test))
 
 # %%
-knn_cv = KNeighborsClassifier(n_neighbors=3)
+from sklearn.model_selection import GridSearchCV
+para = {'n_neighbors':[1,2,3,5,6,7,9,10]}
+knn_cv = KNeighborsClassifier()
 from sklearn.model_selection import cross_val_score
-cv_results = cross_val_score(knn_cv, x_train, y_train, cv=10)
+cv_results = cross_val_score(knn_cv,x_train, y_train, cv=7)
+n = GridSearchCV(knn_cv,para,cv=7)
+n.fit(x_train,y_train)
+print({(n.best_params_)['n_neighbors']})
+print(n.best_score_)
 print(cv_results) 
 print(np.mean(cv_results)) 
 # %%
