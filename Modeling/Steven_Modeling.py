@@ -28,6 +28,22 @@ print(y_test.shape)
 # %%
 #KNN Model
 #Import KNN package
+knn = KNeighborsClassifier(n_neighbors=3) # instantiate with n value given
+knn.fit(x_train,y_train)
+y_pred = knn.predict(x_train)
+y_pred = knn.predict_proba(x_train)
+print(y_pred)
+print(knn.score(x_train,y_train))
 from sklearn.neighbors import KNeighborsClassifier
+knn_split = KNeighborsClassifier(n_neighbors=3)
+knn_split.fit(x_train,y_train)
+ytest_pred = knn_split.predict(x_test)
+ytest_pred
+print(knn_split.score(x_test,y_test))
 
 # %%
+knn_cv = KNeighborsClassifier(n_neighbors=3)
+from sklearn.model_selection import cross_val_score
+cv_results = cross_val_score(knn_cv, xadmit, yadmit, cv=10)
+print(cv_results) 
+print(np.mean(cv_results)) 
