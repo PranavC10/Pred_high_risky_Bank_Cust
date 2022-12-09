@@ -41,7 +41,7 @@ print(f"Bank_data.head() = {Bank_data.head()}")
 
 ## Dropping unwanted columns like RowNumber,CustomerID,surname
 ## This columns won't help in prediction of target 
-Bank_data.drop(columns=["RowNumber","CustomerId","Surname"],inplace=True)
+Bank_data.drop(columns=["CustomerId","Surname"],inplace=True)
 Bank_data.head(1)
 
 # %%
@@ -55,7 +55,7 @@ Bank_data.head(1)
 # %%
 
 ## Spliting dataset into Training and Testing 
-x=Bank_data[["CreditScore", "Geography_Germany", "Geography_Spain", "Gender_Male", "Age", "Tenure", "Balance","NumOfProducts","HasCrCard", "IsActiveMember", "EstimatedSalary"]]
+x=Bank_data[["RowNumber", "CreditScore", "Geography_Germany", "Geography_Spain", "Gender_Male", "Age", "Tenure", "Balance","NumOfProducts","HasCrCard", "IsActiveMember", "EstimatedSalary"]]
 y=Bank_data["Exited"]
 
 x_train, x_test, y_train, y_test = train_test_split(x, y,stratify=y, test_size=0.25,random_state=1)
@@ -71,23 +71,38 @@ y_train.value_counts()
 
 # %%
 
-merge_data = pd.merge(x_train,y_train, on=["ID"])
+#merge_data = pd.merge(x_train,y_train, on=["ID"])
 
-model_b = ols(formula="Exited ~ CreditScore + Geography_Germany + Geography_Spain + Gender_Male + Age + Tenure + Balance + NumOfProducts + HasCrCard + IsActiveMember + EstimatedSalary", data=merge_data)
+model_b = ols(formula="Exited ~ CreditScore + Geography_Germany + Geography_Spain + Gender_Male + Age + Tenure + Balance + NumOfProducts + HasCrCard + IsActiveMember + EstimatedSalary", data=Bank_data)
 print(type(model_b))
 
 model_bFit = model_b.fit()
 print(type(model_bFit))
 print(model_bFit.summary())
+
+# %%
+
+## Spliting dataset into Training and Testing 
+x=Bank_data[["CreditScore", "Gender_Male", "Age", "Balance","NumOfProducts","HasCrCard", "IsActiveMember", "EstimatedSalary"]]
+y=Bank_data["Exited"]
+
+x_train, x_test, y_train, y_test = train_test_split(x, y,stratify=y, test_size=0.25,random_state=1)
+# %%
+
+## Using SMOTE To balance Training dataset 
+# transform the dataset
+oversample = SMOTE()
+x_train, y_train = oversample.fit_resample(x_train, y_train)
+
+y_train.value_counts()
 # %%
 
 clf = GaussianNB()
 clf.fit(x_train, y_train)
 
-# %%
-print(clf.score(x_train,y_train))
-print(clf.score(x_test,y_test))
-# %%
+
+print("Train score",clf.score(x_train,y_train))
+print("Test score",clf.score(x_test,y_test))
 
 y_pred=clf.predict(x_test)
 print(classification_report(y_test,y_pred))
