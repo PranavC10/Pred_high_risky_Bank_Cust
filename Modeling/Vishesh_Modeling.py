@@ -7,6 +7,9 @@ import pickle as pk
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
+from imblearn import under_sampling, over_sampling
+from imblearn.over_sampling import SMOTE
+from statsmodels.formula.api import ols
 
 # %%
 # Imorting dataset
@@ -33,14 +36,50 @@ print(f"Bank_data.head() = {Bank_data.head()}")
 #print(x_test.shape)
 #print(y_test.shape)
 
+
 # %%
-# Creating Test Train split
-x=Bank_data[["CustomerId", "Surname", "CreditScore", "Geography", "Gender", "Age", "Tenure", "Balance","NumOfProducts","HasCrCard", "IsActiveMember", "EstimatedSalary"]]
+
+## Dropping unwanted columns like RowNumber,CustomerID,surname
+## This columns won't help in prediction of target 
+Bank_data.drop(columns=["RowNumber","CustomerId","Surname"],inplace=True)
+Bank_data.head(1)
+
+# %%
+
+## Converting Catgorical columns to numerical data using one hot encoding 
+##  Geography and Gender both are nominal data hence one hot encoding would be better option
+cat_col=["Geography","Gender"]
+Bank_data= pd.get_dummies(Bank_data, columns=cat_col, drop_first=True)
+Bank_data.head(1)
+
+# %%
+
+## Spliting dataset into Training and Testing 
+x=Bank_data[["CreditScore", "Geography_Germany", "Geography_Spain", "Gender_Male", "Age", "Tenure", "Balance","NumOfProducts","HasCrCard", "IsActiveMember", "EstimatedSalary"]]
 y=Bank_data["Exited"]
-							
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state=321)
+x_train, x_test, y_train, y_test = train_test_split(x, y,stratify=y, test_size=0.25,random_state=1)
+# %%
 
+## Using SMOTE To balance Training dataset 
+# transform the dataset
+oversample = SMOTE()
+x_train, y_train = oversample.fit_resample(x_train, y_train)
+
+y_train.value_counts()
+
+
+# %%
+
+
+merge_data = pd.merge(x_train,y_train, on=["ID"])
+
+model_b = ols(formula="Energy_kcal ~ Protein_g + Fat_g + Carb_g + Fiber_g + VitA_mcg + VitB6_mg", data=merge_data)
+print(type(model_b))
+
+model_bFit = model_b.fit()
+print(type(model_bFit))
+print(model_bFit.summary())
 # %%
 
 clf = GaussianNB()
