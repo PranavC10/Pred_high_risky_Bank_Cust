@@ -34,22 +34,6 @@ stats.chi2_contingency(crosstable2)
 #Finding: Here p is 0.0874 which is grater than o.o5. That reject null hypothesis.
 # It can be said that Geography has an effect on CreditScore.
 
-# Let check wheather Card Balance depends on Gender
-crosstable3=pd.crosstab(df['Gender'], df['Balance'])
-print(crosstable3)
-stats.chi2_contingency(crosstable3)
-
-#Finding: Here p is 0.511 which is grater than o.o5. That reject null hypothesis.
-# It can be said that Card Balance depends on Gender
-
-# Let check wheather Card Balance depends on Region
-crosstable4=pd.crosstab(df['Geography'], df['Balance'])
-print(crosstable4)
-stats.chi2_contingency(crosstable4)
-
-#Finding: Here p is 4.88e^-46 which is less than o.o5. That accept null hypothesis.
-# It can be said that Card Balance is not depend on Region
-
 #Let's check active member depends on gender or not
 
 crosstable5=pd.crosstab(df['IsActiveMember'], df['Gender'])
