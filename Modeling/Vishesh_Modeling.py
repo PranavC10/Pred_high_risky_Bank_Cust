@@ -19,24 +19,6 @@ print(f"Bank_data.shape = {Bank_data.shape}")
 print(f"Bank_data.info() = {Bank_data.info()}")
 print(f"Bank_data.head() = {Bank_data.head()}")
 
-
-# %%
-## Loading preprocessed data using pickle
-
-#x_train=pk.load( open( r"C:\Users\vishesh\Documents\GWU\Data Mining\Project\Program\x_train.pk", "rb" ) )
-#y_train=pk.load( open( r"C:\Users\vishesh\Documents\GWU\Data Mining\Project\Program\y_train.pk", "rb" ) )
-
-#x_test=pk.load( open( r"C:\Users\vishesh\Documents\GWU\Data Mining\Project\Program\x_test.pk", "rb" ) )
-#y_test=pk.load( open( r"C:\Users\vishesh\Documents\GWU\Data Mining\Project\Program\y_test.pk", "rb" ) )
-#print("Train Data Shape")
-#print(x_train.shape)
-#print(y_train.shape)
-
-#print("Test Data Shape")
-#print(x_test.shape)
-#print(y_test.shape)
-
-
 # %%
 
 ## Dropping unwanted columns like RowNumber,CustomerID,surname
@@ -59,6 +41,20 @@ x=Bank_data[["RowNumber", "CreditScore", "Geography_Germany", "Geography_Spain",
 y=Bank_data["Exited"]
 
 x_train, x_test, y_train, y_test = train_test_split(x, y,stratify=y, test_size=0.25,random_state=1)
+
+# %%
+
+
+clf = GaussianNB()
+clf.fit(x_train, y_train)
+
+
+print("Train score",clf.score(x_train,y_train))
+print("Test score",clf.score(x_test,y_test))
+
+y_pred=clf.predict(x_test)
+print(classification_report(y_test,y_pred))
+
 # %%
 
 ## Using SMOTE To balance Training dataset 
