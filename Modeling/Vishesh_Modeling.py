@@ -71,10 +71,9 @@ y_train.value_counts()
 
 # %%
 
-
 merge_data = pd.merge(x_train,y_train, on=["ID"])
 
-model_b = ols(formula="Energy_kcal ~ Protein_g + Fat_g + Carb_g + Fiber_g + VitA_mcg + VitB6_mg", data=merge_data)
+model_b = ols(formula="Exited ~ CreditScore + Geography_Germany + Geography_Spain + Gender_Male + Age + Tenure + Balance + NumOfProducts + HasCrCard + IsActiveMember + EstimatedSalary", data=merge_data)
 print(type(model_b))
 
 model_bFit = model_b.fit()
