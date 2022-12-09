@@ -91,10 +91,10 @@ x_train, x_test, y_train, y_test = train_test_split(x, y,stratify=y, test_size=0
 
 ## Using SMOTE To balance Training dataset 
 # transform the dataset
-oversample = SMOTE()
-x_train, y_train = oversample.fit_resample(x_train, y_train)
+#oversample = SMOTE()
+#x_train, y_train = oversample.fit_resample(x_train, y_train)
 
-y_train.value_counts()
+#y_train.value_counts()
 # %%
 
 clf = GaussianNB()
