@@ -30,8 +30,9 @@ print(y_test.shape)
 
 #%%
 #Logit Regression
-
-
+#Logistic regression is to predict a binary outcome a data set
+LR_model = glm(Exited ~ ., data = df, family = "binomial")
+summary(LR_model)
 
 # %%
 sns.heatmap(df.corr(),annot=True)
