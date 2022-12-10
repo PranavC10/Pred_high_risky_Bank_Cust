@@ -122,7 +122,7 @@ param_grid={
     'n_estimators':[10,50,100,200]
     
 }
-grid_xgb= GridSearchCV(XGBClassifier(objective='binary:logistic'),param_grid, verbose=3,eval)
+grid_xgb= GridSearchCV(XGBClassifier(objective='binary:logistic'),param_grid, verbose=3)
 grid_xgb.fit(x_train,y_train)
 print(grid_xgb.best_params_)
 
