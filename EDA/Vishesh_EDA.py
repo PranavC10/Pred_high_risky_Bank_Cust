@@ -82,10 +82,10 @@ print(h1 + "Finding:" + e + s1 + "From the graph we can see that Estimated Salar
 
 #4 Age vs churn rate
 
-fig = px.histogram(Bank_data, x="Age", color="Exited", title="Impact of Customer Balance on customer churn rate")
+fig = px.histogram(Bank_data, x="Age", color="Exited", color_discrete_map={"Exited":"#ffc8dd"})
 
 fig.update_layout(
-    title="Impact of Customer Balance on customer churn rate",
+    title="Impact of Age on customer churn rate",
     xaxis_title="Age",
     yaxis_title="Count",
     legend_title="Exited"
@@ -99,11 +99,15 @@ print(h1 + "Finding:" + e + s1 + "The graph is right skewed for the reatined cus
 
 # Customer churn rate based on Gender
 
-fig = px.histogram(Bank_data, x="Gender",color="Exited", title = "Customer churn rate based on Gender")
+fig = px.histogram(Bank_data, x="Gender",color="Exited", color_discrete_map={"Exited":"#ffc8dd"}, title = "Customer churn rate based on Gender")
 fig.show()
 
-#fig = px.pie(Bank_data, values='Exited', names='Gender')
-#fig.show()
+fig.update_layout(
+    title="Customer churn rate based on Gender",
+    xaxis_title="Age",
+    yaxis_title="Count",
+    legend_title="Exited"
+)
 
 print(h1 + "Finding:" + e + s1 + "Even though the count of Male customer is more than the Female customer, the churn couunt of female customer is more than the male customer " + e)
 
