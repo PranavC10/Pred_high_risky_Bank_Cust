@@ -99,14 +99,15 @@ print(h1 + "Finding:" + e + s1 + "The graph is right skewed for the reatined cus
 
 # Customer churn rate based on Gender
 
-fig = px.histogram(Bank_data, x="Gender",color="Exited", color_discrete_map={"Exited":"#ffc8dd"}, title = "Customer churn rate based on Gender")
+fig = px.histogram(Bank_data, x="Gender",color="Exited", color_discrete_map={"Exited":"#ffc8dd"})
 fig.show()
 
 fig.update_layout(
     title="Customer churn rate based on Gender",
     xaxis_title="Age",
     yaxis_title="Count",
-    legend_title="Exited"
+    legend_title="Exited",
+    text= "counts"
 )
 
 print(h1 + "Finding:" + e + s1 + "Even though the count of Male customer is more than the Female customer, the churn couunt of female customer is more than the male customer " + e)
