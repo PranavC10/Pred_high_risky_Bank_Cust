@@ -31,11 +31,9 @@ print(df.isnull().sum())
 
 
 # %%
-#Logit Regression
+#Corr plot
 sns.heatmap(df.corr(),annot=True)
 plt.show()
-modelCreditScore = glm(formula='CreditScore ~ Age+Tenure+Balance+NumOfProducts+HasCrCard+IsActiveMember+EstimatedSalary+Exited', data=df, family=sm.families.Binomial()).fit()
-print( modelCreditScore.summary() )
 
 
 # %%
