@@ -30,24 +30,65 @@ print(df.isnull().sum())
 
 
 
-#%%
+# %%
 #Logit Regression
-#Logistic regression is to predict a binary outcome a data set
+sns.heatmap(df.corr(),annot=True)
+plt.show()
+modelCreditScore = glm(formula='CreditScore ~ Age+Tenure+Balance+NumOfProducts+HasCrCard+IsActiveMember+EstimatedSalary+Exited', data=df, family=sm.families.Binomial()).fit()
+print( modelCreditScore.summary() )
 
 
 # %%
-sns.heatmap(df.corr(),annot=True)
-plt.show()
-modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)+C(Balance)+C(NumOfProducts)+C(HasCrCard)+C(IsActiveMember)+C(EstimatedSalary)+C(Exited)', data=df, family=sm.families.Binomial()).fit()
-print(modelCreditScore.summary())
-modelpredicitons = pd.DataFrame( columns=['CreditScore_df'], data= modelCreditScore.predict(df)) 
-print(modelpredicitons.head())
+#Spliting
+from sklearn.model_selection import train_test_split
+from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
 
+
+xdf = df[['Age', 'Tenure', 'Balance','NumOfProducts','HasCrCard','IsActiveMember','EstimatedSalary','Exited']]
+ydf = df['CreditScore']
+print(type(xdf))
+print(type(ydf))
+
+
+#from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(xdf, ydf,test_size=0.25, random_state=1)
+
+print('x_train type',type(x_train))
+print('x_train shape',x_train.shape)
+print('x_test type',type(x_test))
+print('x_test shape',x_test.shape)
+print('y_train type',type(y_train))
+print('y_train shape',y_train.shape)
+print('y_test type',type(y_test))
+print('y_test shape',y_test.shape)
+
+print("\nReady to continue.")
 # %%
-sns.heatmap(df.corr(),annot=True)
-plt.show()
-modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)', data=df, family=sm.families.Binomial()).fit()
-print(modelCreditScore.summary())
-modelpredicitons = pd.DataFrame( columns=['CreditScore_df'], data= modelCreditScore.predict(df)) 
-print(modelpredicitons.head())
+
+# Logit
+from sklearn.linear_model import LogisticRegression
+
+creditlogit = LogisticRegression()  # instantiate
+creditlogit.fit(x_train, y_train)
+print('Logit model accuracy (with the test set):', creditlogit.score(x_test, y_test))
+print('Logit model accuracy (with the train set):', creditlogit.score(x_train, y_train))
+
+print("\nReady to continue.")
+
+#%%
+print(creditlogit.predict(x_test))
+
+print("\nReady to continue.")
+print(creditlogit.predict_proba(x_train[:8]))
+print(creditlogit.predict_proba(x_test[:8]))
+
+print("\nReady to continue.")
+
+#%%
+
+
+#%%
+
+
 # %%
