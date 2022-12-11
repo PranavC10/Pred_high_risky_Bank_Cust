@@ -14,39 +14,79 @@ from statsmodels.formula.api import ols
 import rfit
 
 #%%
+df = pd.read_csv(r'/Users/nusratprithee/Documents/T1-Data_Ninjas-22FA/Data/Bank_data.csv')
+print(df)
+df = df.drop(["RowNumber","CustomerId"],axis=1)
+df.head()
+df.tail()
+print('Data finding')
+print(type(df))
+print(df.dtypes)
+df.describe()
 
-x_test=pk.load(open(r"/Users/nusratprithee/Documents/T1-Data_Ninjas-22FA/Preprocessed_data/x_test.pk",'rb'))
-x_train=pk.load(open(r"/Users/nusratprithee/Documents/T1-Data_Ninjas-22FA/Preprocessed_data/x_train.pk",'rb'))
-y_test=pk.load(open(r"/Users/nusratprithee/Documents/T1-Data_Ninjas-22FA/Preprocessed_data/y_test.pk",'rb'))
-y_train=pk.load(open(r"/Users/nusratprithee/Documents/T1-Data_Ninjas-22FA/Preprocessed_data/y_train.pk",'rb'))
+print('finding mising value')
+print(df.isnull().sum())
 
-print("Train Data Shape")
-print(x_train.shape)
-print(y_train.shape)
 
-print("Test Data Shape")
-print(x_test.shape)
-print(y_test.shape)
+
+
+# %%
+#Corr plot
+sns.heatmap(df.corr(),annot=True)
+plt.show()
+
+
+# %%
+#Spliting
+from sklearn.model_selection import train_test_split
+from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
+
+
+xdf = df[['Age', 'Tenure', 'Balance','NumOfProducts','HasCrCard','IsActiveMember','EstimatedSalary','Exited']]
+ydf = df['CreditScore']
+print(type(xdf))
+print(type(ydf))
+
+
+#from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(xdf, ydf,test_size=0.25, random_state=1)
+
+print('x_train type',type(x_train))
+print('x_train shape',x_train.shape)
+print('x_test type',type(x_test))
+print('x_test shape',x_test.shape)
+print('y_train type',type(y_train))
+print('y_train shape',y_train.shape)
+print('y_test type',type(y_test))
+print('y_test shape',y_test.shape)
+
+print("\nReady to continue.")
+# %%
+
+# Logit
+from sklearn.linear_model import LogisticRegression
+
+creditlogit = LogisticRegression()  # instantiate
+creditlogit.fit(x_train, y_train)
+print('Logit model accuracy (with the test set):', creditlogit.score(x_test, y_test))
+print('Logit model accuracy (with the train set):', creditlogit.score(x_train, y_train))
+
+print("\nReady to continue.")
 
 #%%
-#Logit Regression
-#Logistic regression is to predict a binary outcome a data set
-LR_model = glm(Exited ~ ., data = df, family = "binomial")
-summary(LR_model)
+print(creditlogit.predict(x_test))
 
-# %%
-sns.heatmap(df.corr(),annot=True)
-plt.show()
-modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)', data=df, family=sm.families.Binomial()).fit()
-print(modelCreditScore.summary())
-modelpredicitons = pd.DataFrame( columns=['CreditScore_df'], data= modelCreditScore.predict(df)) 
-print(modelpredicitons.head())
+print("\nReady to continue.")
+print(creditlogit.predict_proba(x_train[:8]))
+print(creditlogit.predict_proba(x_test[:8]))
 
-# %%
-sns.heatmap(df.corr(),annot=True)
-plt.show()
-modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)', data=df, family=sm.families.Binomial()).fit()
-print(modelCreditScore.summary())
-modelpredicitons = pd.DataFrame( columns=['CreditScore_df'], data= modelCreditScore.predict(df)) 
-print(modelpredicitons.head())
+print("\nReady to continue.")
+
+#%%
+
+
+#%%
+
+
 # %%
