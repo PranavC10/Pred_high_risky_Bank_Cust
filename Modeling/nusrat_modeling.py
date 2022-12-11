@@ -14,19 +14,31 @@ from statsmodels.formula.api import ols
 import rfit
 
 #%%
+df = pd.read_csv(r'/Users/nusratprithee/Documents/T1-Data_Ninjas-22FA/Data/Bank_data.csv')
+print(df)
+df = df.drop(["RowNumber","CustomerId"],axis=1)
+df.head()
+df.tail()
+print('Data finding')
+print(type(df))
+print(df.dtypes)
+df.describe()
+
+print('finding mising value')
+print(df.isnull().sum())
+
 
 
 
 #%%
 #Logit Regression
 #Logistic regression is to predict a binary outcome a data set
-LR_model = glm(Exited ~ ., data = df, family = "binomial")
-summary(LR_model)
+
 
 # %%
 sns.heatmap(df.corr(),annot=True)
 plt.show()
-modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)', data=df, family=sm.families.Binomial()).fit()
+modelCreditScore = glm(formula='CreditScore ~ Age+C(Tenure)+C(Balance)+C(Balance)+C(NumOfProducts)+C(HasCrCard)+C(IsActiveMember)+C(EstimatedSalary)+C(Exited)', data=df, family=sm.families.Binomial()).fit()
 print(modelCreditScore.summary())
 modelpredicitons = pd.DataFrame( columns=['CreditScore_df'], data= modelCreditScore.predict(df)) 
 print(modelpredicitons.head())
