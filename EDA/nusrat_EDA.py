@@ -78,7 +78,9 @@ sns.distplot(df.EstimatedSalary)
 plt.show()
 #Average Salary of customer is 1lace. Most people has the same amount of salary range
 # %%
-
+df.groupby("Gender").mean()["CreditScore"].plot(kind='bar')
+plt.title("Gender interates CreditScore ")
+plt.show()
 
 # %%
 
