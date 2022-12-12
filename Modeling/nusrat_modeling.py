@@ -52,36 +52,30 @@ print(type(ydf))
 #from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(xdf, ydf,test_size=0.25, random_state=1)
 
-print('x_train type',type(x_train))
-print('x_train shape',x_train.shape)
-print('x_test type',type(x_test))
-print('x_test shape',x_test.shape)
-print('y_train type',type(y_train))
-print('y_train shape',y_train.shape)
-print('y_test type',type(y_test))
-print('y_test shape',y_test.shape)
 
-print("\nReady to continue.")
+
+
 # %%
 
 # Logit
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
 
-creditlogit = LogisticRegression()  # instantiate
+creditlogit = LogisticRegression() 
 creditlogit.fit(x_train, y_train)
 print('Logit model accuracy (with the test set):', creditlogit.score(x_test, y_test))
 print('Logit model accuracy (with the train set):', creditlogit.score(x_train, y_train))
 
 print("\nReady to continue.")
 
+
+y_pred=creditlogit.predict(x_test)
+print(classification_report(y_test,y_pred))
+print("\nReady to continue.")
+
 #%%
-print(creditlogit.predict(x_test))
 
-print("\nReady to continue.")
-print(creditlogit.predict_proba(x_train[:8]))
-print(creditlogit.predict_proba(x_test[:8]))
 
-print("\nReady to continue.")
 
 #%%
 
