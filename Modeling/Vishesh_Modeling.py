@@ -59,10 +59,15 @@ print(classification_report(y_test,y_pred))
 
 ## Using SMOTE To balance Training dataset 
 # transform the dataset
-oversample = SMOTE()
-x_train, y_train = oversample.fit_resample(x_train, y_train)
+#oversample = SMOTE()
+#x_train, y_train = oversample.fit_resample(x_train, y_train)
 
 y_train.value_counts()
+
+
+from imblearn.combine import SMOTEENN
+smt = SMOTEENN(random_state=42)
+x_train, y_train = smt.fit_resample(x_train, y_train)
 
 
 # %%
