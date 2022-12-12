@@ -31,11 +31,6 @@ Expected2= [sum(Observed2)/len(Observed2)]
 #perform Chi-Square Goodness of Fit Test
 stats.chisquare(f_obs=Observed2, f_exp=Expected2)
 
-# %%
-Observed3=list(df['NumOfProducts'].value_counts())
-Expected3= [sum(Observed3)/len(Observed3)]
-#perform Chi-Square Goodness of Fit Test
-stats.chisquare(f_obs=Observed3, f_exp=Expected3)
 
 # %%
 Observed4=list(df['IsActiveMember'].value_counts())
@@ -48,10 +43,5 @@ Expected5= [sum(Observed5)/len(Observed5)]
 #perform Chi-Square Goodness of Fit Test
 stats.chisquare(f_obs=Observed5, f_exp=Expected5)
 
-#%%
-Observed6=list(df['Exited'].value_counts())
-Expected6= [sum(Observed6)/len(Observed6)]
-#perform Chi-Square Goodness of Fit Test
-stats.chisquare(f_obs=Observed6, f_exp=Expected6)
 
 # %%
