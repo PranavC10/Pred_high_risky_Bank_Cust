@@ -1,4 +1,3 @@
-# T1-Data_Ninjas-22FA
 
 ![image](https://user-images.githubusercontent.com/43096879/207431240-831900f1-93d4-4ec5-a5f3-42e480724792.png)
 
