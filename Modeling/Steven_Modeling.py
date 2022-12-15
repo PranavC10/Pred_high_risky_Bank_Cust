@@ -28,6 +28,7 @@ print(y_test.shape)
 # %%
 #KNN Model
 #Import KNN package
+from sklearn.neighbors import KNeighborsClassifier
 knn = KNeighborsClassifier(n_neighbors=1) # instantiate with n value given
 knn.fit(x_train,y_train)
 y_pred = knn.predict(x_train)
@@ -54,4 +55,24 @@ print({(n.best_params_)['n_neighbors']})
 print(n.best_score_)
 print(cv_results) 
 print(np.mean(cv_results)) 
+# %%
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix
+ 
+cm = confusion_matrix(y_test,ytest_pred)
+print(cm)
+ 
+color = 'white'
+matrix = plot_confusion_matrix(knn, x_test, y_test, cmap=plt.cm.Blues)
+matrix.ax_.set_title('Confusion Matrix', color=color)
+plt.xlabel('Predicted Label', color=color)
+plt.ylabel('True Label', color=color)
+plt.gcf().axes[0].tick_params(colors=color)
+plt.gcf().axes[1].tick_params(colors=color)
+plt.show()
+
+# %%
+from sklearn.metrics import classification_report
+ 
+print(classification_report(y_test, ytest_pred))
 # %%
