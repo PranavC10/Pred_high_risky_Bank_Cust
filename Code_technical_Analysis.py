@@ -22,6 +22,9 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import pickle as pk
 from copy import deepcopy
+from imblearn.over_sampling import SMOTE
+from imblearn.combine import SMOTEENN
+from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
 
 # %%
 # %%
@@ -187,4 +190,67 @@ def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph
 evaluate_model(log_reg,X_train,Y_train,X_test,y_test,fit=True)
 log_reg.coef_
 # %%
-## Base model on SMOTE :
+##Base model on SMOTE :
+## Using SMOTE To balance Training dataset 
+# transform the dataset
+
+oversample = SMOTE()
+x_train, y_train = oversample.fit_resample(X_train, Y_train)
+
+log_reg_smote = LogisticRegression()
+
+log_reg_smote.fit(x_train,y_train)
+
+print("Training data size")
+print(x_train.shape)
+print(y_train.values_count())
+evaluate_model(log_reg_smote,x_train,y_train,X_test,y_test,fit=True)
+
+
+# %%
+smt = SMOTEENN(random_state=42)
+x_train, y_train = smt.fit_resample(X_train, Y_train)
+
+log_reg_smote_ENN = LogisticRegression()
+
+log_reg_smote_ENN.fit(x_train,y_train)
+
+print("Training data size")
+print(x_train.shape)
+print(y_train.value_counts())
+evaluate_model(log_reg_smote_ENN,x_train,y_train,X_test,y_test,fit=True)
+
+## SMOTE ENN Performed better 
+# %%
+
+from sklearn.ensemble import RandomForestClassifier
+rf_clf = RandomForestClassifier(n_jobs=-1)
+rf_clf.fit(x_train,y_train)
+evaluate_model(rf_clf,x_train,y_train,X_test,y_test,fit=True)
+# %%
+## Hyperparameter tunining 
+# we are tuning three hyperparameters right now, we are passing the different values for both parameters
+grid_param = {
+    "n_estimators" : [90,100,115,130],
+    'criterion': ['gini', 'entropy'],
+    'max_depth' : range(2,20,1),
+    'min_samples_leaf' : range(1,10,1),
+    'min_samples_split': range(2,10,1),
+    'max_features' : ['auto','log2']
+}
+rand0m_search = RandomizedSearchCV(estimator=clf,param_distributions=grid_param,cv=5,n_jobs =-1,verbose = 3)
+rand0m_search.fit(x_train,y_train)
+# %%
+# %%
+print(rand0m_search.best_params_)
+# %%
+rand_clf_tune = RandomForestClassifier(criterion= 'entropy',
+ max_depth = 14,
+ max_features = 'log2',
+ min_samples_leaf = 1,
+ min_samples_split= 4,
+ n_estimators = 115,random_state=6)
+
+rand_clf_tune.fit(x_train,y_train)
+evaluate_model(rand_clf_tune,x_train,y_train,X_test,y_test,fit=True)
+# %%
