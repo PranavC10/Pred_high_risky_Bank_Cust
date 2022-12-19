@@ -1,6 +1,6 @@
 
 #%%
-#imports
+#importing all the needed libraries
 
 import pandas as pd
 import plotly.express as px
@@ -8,7 +8,7 @@ import plotly.express as px
 #%%
 # data import
 
-Bank_data = pd.read_csv(r"C:\Users\vishesh\Documents\GitHub\T1-Data_Ninjas-22FA\Data\Bank_data.csv")
+Bank_data = pd.read_csv(r"C:\Users\vishe\OneDrive\Documents\GitHub\T1-Data_Ninjas-22FA\Data\Bank_data.csv")
 print(f"Bank_data.shape = {Bank_data.shape}")
 print(f"Bank_data.info() = {Bank_data.info()}")
 print(f"Bank_data.head() = {Bank_data.head()}")
@@ -37,8 +37,6 @@ fig.show()
 
 print(h1 + "Finding:" + e + s1 + "Credit score in general does not have an impact on the churn rate, but in the grpah we can see that Credit score and Churn rate are normally distributed and the maximum population have credit score between 600-700 and this population has highest churn rate as well. Also we can see that churn rate is directely proportional to population. Greater the population in the bin greatr is the churn rate" + e)
 
-#color_discrete_sequence=px.colors.qualitative.Antique,
-
 # %%
 #2 Balance vs churn rate
 
@@ -53,11 +51,6 @@ fig.update_layout(
 )
 
 fig.show()
-
-
-#fig = px.histogram(Bank_data, x="Balance", color="Exited",
-#                   marginal="box")
-#fig.show()
 
 print(h1 + "Finding:" + e + s1 + "From the graph we can see that people with higher balance tend to churn more than the one with the low balance." + e)
 
