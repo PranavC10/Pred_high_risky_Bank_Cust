@@ -69,6 +69,7 @@ plt.xlabel('Predicted Label', color=color)
 plt.ylabel('True Label', color=color)
 plt.gcf().axes[0].tick_params(colors=color)
 plt.gcf().axes[1].tick_params(colors=color)
+plt.savefig('K Plot')
 plt.show()
 
 # %%
