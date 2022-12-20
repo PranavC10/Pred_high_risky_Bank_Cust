@@ -76,6 +76,7 @@ from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 import lightgbm as lgb
 from sklearn.metrics import classification_report,accuracy_score,f1_score,recall_score,roc_curve, roc_auc_score
+from scipy.stats import chi2_contingency
 
 
 
@@ -251,8 +252,22 @@ print('Germany has the highest number of customers churned among all countries w
 print('\n')
 print('Germany also has the highest churn rate of 32.44%','\n')
 
+# %%
+## Selecting feature using chi square test
+def check_categorical_imp(cust_df,categorical_col):
+    new_categorical_col = []
+    for i in categorical_col:
+        print(chi2_contingency(pd.crosstab(cust_df.Exited, cust_df[i]))[1])
+        if chi2_contingency(pd.crosstab(cust_df.Exited, cust_df[i]))[1] >= 0.05:
+            pass
+        else:
+            new_categorical_col.append(i)
+            
+    return new_categorical_col
 
-
+check_categorical_imp(df,["Geography","Gender","IsActiveMember"])
+print("Geography,Gender and is active member features are important for prediction")
+## 
 ## Data Preprocessing 
 
 # %%
