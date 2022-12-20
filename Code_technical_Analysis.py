@@ -366,7 +366,17 @@ shap.summary_plot(shap_values, X_test,)
 # %%
 ## Predicting for Vishesh
 
-catboost_tuned.predict_proba([814,27,5,10000,2,1,1,90000,0,0,1])
+catboost_tuned.predict_proba([814,27,5,10000,3,1,1,90000,0,0,1])
 
 
+# %%
 
+pred= catboost_tuned.predict_proba(X_test)
+efficient_cutoff(y_test,pred[:,1])
+probability_cutoff,accuracy_score_val,recall_score_val=efficient_cutoff(y_test,pred[:,1])
+    
+fig = px.scatter( x=accuracy_score_val, y=recall_score_val,text=probability_cutoff, title='Threshold cutoff plot')
+fig.show()
+
+
+# %%
