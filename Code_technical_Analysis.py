@@ -1,7 +1,7 @@
 # %%
 # Imorting all the necessary libraries 
 
-import pandas as pd
+import pandas as pd 
 import numpy as np
 import seaborn as sns 
 import plotly
@@ -122,6 +122,8 @@ y=df["Exited"]
 # %%
 
 ## Base model on imbalance dataset
+
+## We are using standard scaler as Variables that are measured at different scales do not contribute equally to the model fitting & model learned function and might end up creating a bias.
 scalar = StandardScaler()
 X_scaled = scalar.fit_transform(x)
 X_train, X_test, Y_train, y_test = train_test_split(X_scaled, y,stratify=y, test_size=0.25,random_state=1)
@@ -133,20 +135,7 @@ log_reg = LogisticRegression()
 
 log_reg.fit(X_train,Y_train)
 # %%
-def efficient_cutoff(actual_value,predicted):
-    probability_cutoff = []
-    accuracy_score_val = []
-    recall_score_val=[]
-    for i in range(30,50,2):
-        predicted_x = deepcopy(predicted)
-        predicted_x[predicted_x >= i / 100] = 1
-        predicted_x[predicted_x < i / 100] = 0
-        probability_cutoff.append(i/100)
-        accuracy_score_val.append(accuracy_score(actual_value,predicted_x))
-        recall_score_val.append(recall_score(actual_value,predicted_x))
-        
-    
-    return (probability_cutoff,accuracy_score_val,recall_score_val)
+
 
 
 def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph = False):
@@ -161,10 +150,7 @@ def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph
     print(classification_report(y_train, train_pred))
     
     print("Testing report")
-    test_pred=model.predict(x_test)
-    print("Accuracy")
-    
-    print("F1_Score")
+    test_pred=model.predict(x_test)    
     print(f1_score(y_test,test_pred))
     print(classification_report(y_test, test_pred))
 
@@ -182,12 +168,7 @@ def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph
     plt.legend()
     plt.show()
     
-    if threshold_graph == True:
-        
-        probability_cutoff,accuracy_score_val,recall_score_val=efficient_cutoff(y_test,y_pred_prob[:,1])
     
-        fig = px.scatter( x=accuracy_score_val, y=recall_score_val,text=probability_cutoff, title='Threshold cutoff plot')
-        fig.show()
 
 
     
@@ -286,15 +267,16 @@ evaluate_model(xgb_tuned,x_train,y_train,X_test,y_test,fit=True)
 # %%
 catboost = CatBoostClassifier()
 catboost.fit(x_train,y_train)
-evaluate_model(catboost,x_train,y_train,X_test,y_test)
+evaluate_model(catboost,x_train,y_train,X_test,y_test,fit=True)
 # %%
 cbc = CatBoostClassifier()
 
 #create the grid
-grid = {'max_depth': [3,4,5],'n_estimators':[100, 200, 300]}
+grid = {'max_depth': [3,4,5,6,7,8,9],'n_estimators':[100, 200, 300]}
 
 #Instantiate GridSearchCV
-gscv = GridSearchCV (estimator = cbc, param_grid = grid, scoring ='accuracy', cv = 5)
+gscv = GridSearchCV (estimator = cbc, param_grid = grid, scoring = "roc_auc_ovr"
+, cv = 5)
 
 #fit the model
 gscv.fit(x_train,y_train)
@@ -310,23 +292,19 @@ print(gscv.best_params_)
 
 
 # %%
-catboost_tuned = CatBoostClassifier(max_depth = 5,n_estimators=200)
-evaluate_model(catboost_tuned,x_train,y_train,X_test,y_test)
+catboost_tuned = CatBoostClassifier(max_depth = 9,n_estimators=200)
+catboost_tuned.fit(x_train,y_train)
+evaluate_model(catboost_tuned,x_train,y_train,X_test,y_test,fit=True)
 
 
 # %%
 lgbm = lgb.LGBMClassifier()
 lgbm.fit(x_train, y_train)
-evaluate_model(lgbm,x_train,y_train,X_test,y_test)
+evaluate_model(lgbm,x_train,y_train,X_test,y_test,fit=True)
 # %%
 
 param_test ={'num_leaves': sp_randint(6, 50), 
-             'min_child_samples': sp_randint(100, 500), 
-             'min_child_weight': [1e-5, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4],
-             'subsample': sp_uniform(loc=0.2, scale=0.8), 
-             'colsample_bytree': sp_uniform(loc=0.4, scale=0.6),
-             'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
-             'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100],
+             
                "n_estimators" : [50,100,200,300]}
 
 lgb_clf = lgb.LGBMClassifier(max_depth=7, random_state=314, silent=True, metric='None', n_jobs=4)
@@ -343,7 +321,7 @@ lgb_rs.fit(x_train,y_train)
 
 print('Best score reached: {} with params: {} '.format(lgb_rs.best_score_, lgb_rs.best_params_))
 # %%
-tunned_lgb=lgb.LGBMClassifier(n_estimators = 200,colsample_bytree = 0.945551226916892, min_child_samples = 144,min_child_weight = 1e-05,num_leaves=13,reg_alpha = 0.1,reg_lambda = 5,subsample =  0.44782056066342807)
+tunned_lgb=lgb.LGBMClassifier(n_estimators = 300,num_leaves = 44)
 fit_params={"early_stopping_rounds":30, 
             "eval_metric" : 'auc', 
             "eval_set" : [(X_test,y_test)],
@@ -370,13 +348,28 @@ catboost_tuned.predict_proba([814,27,5,10000,3,1,1,90000,0,0,1])
 
 
 # %%
+def efficient_cutoff(actual_value,predicted):
+    probability_cutoff = []
+    accuracy_score_val = []
+    recall_score_val=[]
+    for i in range(30,50,2):
+        predicted_x = deepcopy(predicted)
+        predicted_x[predicted_x >= i / 100] = 1
+        predicted_x[predicted_x < i / 100] = 0
+        probability_cutoff.append(i/100)
+        accuracy_score_val.append(accuracy_score(actual_value,predicted_x))
+        recall_score_val.append(recall_score(actual_value,predicted_x))
+        
+    
+    return (probability_cutoff,accuracy_score_val,recall_score_val)
 
+
+
+
+# %%
 pred= catboost_tuned.predict_proba(X_test)
 efficient_cutoff(y_test,pred[:,1])
 probability_cutoff,accuracy_score_val,recall_score_val=efficient_cutoff(y_test,pred[:,1])
     
 fig = px.scatter( x=accuracy_score_val, y=recall_score_val,text=probability_cutoff, title='Threshold cutoff plot')
 fig.show()
-
-
-# %%
