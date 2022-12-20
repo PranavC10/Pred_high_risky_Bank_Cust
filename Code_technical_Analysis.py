@@ -4,7 +4,6 @@
 import pandas as pd
 import numpy as np
 import seaborn as sns 
-import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objects as go
 import plotly.express as px
@@ -14,10 +13,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
-from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score,f1_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import  roc_curve, roc_auc_score
+from sklearn.metrics import classification_report,accuracy_score,f1_score,recall_score,roc_curve, roc_auc_score
+
 import plotly.express as px
 import matplotlib.pyplot as plt
 import pickle as pk
@@ -30,6 +27,8 @@ from catboost import CatBoostClassifier
 import lightgbm as lgb
 from scipy.stats import randint as sp_randint
 from scipy.stats import uniform as sp_uniform
+import shap
+
 import warnings
 warnings.filterwarnings("ignore")
 # %%
@@ -216,6 +215,8 @@ evaluate_model(log_reg_smote,x_train,y_train,X_test,y_test,fit=True)
 # %%
 smt = SMOTEENN(random_state=42)
 x_train, y_train = smt.fit_resample(X_train, Y_train)
+x_train=pd.DataFrame(x_train,columns = x.columns)
+X_test=pd.DataFrame(X_test,columns = x.columns)
 
 log_reg_smote_ENN = LogisticRegression()
 
@@ -309,8 +310,8 @@ print(gscv.best_params_)
 
 
 # %%
-catboost = CatBoostClassifier(max_depth = 5,n_estimators=200)
-evaluate_model(catboost,x_train,y_train,x_test,y_test)
+catboost_tuned = CatBoostClassifier(max_depth = 5,n_estimators=200)
+evaluate_model(catboost_tuned,x_train,y_train,X_test,y_test)
 
 
 # %%
@@ -353,3 +354,19 @@ fit_params={"early_stopping_rounds":30,
 tunned_lgb.fit(x_train,y_train,**fit_params)
 evaluate_model(tunned_lgb,x_train,y_train,X_test,y_test,fit=True)
 # %%
+shap.initjs()
+
+explainer = shap.TreeExplainer(catboost_tuned)
+
+shap_values = explainer.shap_values(X_test)
+shap.summary_plot(shap_values, X_test,)
+
+
+
+# %%
+## Predicting for Vishesh
+
+catboost_tuned.predict_proba([814,27,5,10000,2,1,1,90000,0,0,1])
+
+
+
