@@ -25,7 +25,13 @@ from copy import deepcopy
 from imblearn.over_sampling import SMOTE
 from imblearn.combine import SMOTEENN
 from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
-
+from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
+import lightgbm as lgb
+from scipy.stats import randint as sp_randint
+from scipy.stats import uniform as sp_uniform
+import warnings
+warnings.filterwarnings("ignore")
 # %%
 # %%
 ## Loading the dataset 
@@ -203,7 +209,7 @@ log_reg_smote.fit(x_train,y_train)
 
 print("Training data size")
 print(x_train.shape)
-print(y_train.values_count())
+print(y_train.value_counts())
 evaluate_model(log_reg_smote,x_train,y_train,X_test,y_test,fit=True)
 
 
@@ -238,11 +244,11 @@ grid_param = {
     'min_samples_split': range(2,10,1),
     'max_features' : ['auto','log2']
 }
-rand0m_search = RandomizedSearchCV(estimator=clf,param_distributions=grid_param,cv=5,n_jobs =-1,verbose = 3)
-rand0m_search.fit(x_train,y_train)
+random_search = RandomizedSearchCV(estimator=rf_clf,param_distributions=grid_param,cv=5,n_jobs =-1,verbose = 3)
+random_search.fit(x_train,y_train)
 # %%
 # %%
-print(rand0m_search.best_params_)
+print(random_search.best_params_)
 # %%
 rand_clf_tune = RandomForestClassifier(criterion= 'entropy',
  max_depth = 14,
@@ -253,4 +259,97 @@ rand_clf_tune = RandomForestClassifier(criterion= 'entropy',
 
 rand_clf_tune.fit(x_train,y_train)
 evaluate_model(rand_clf_tune,x_train,y_train,X_test,y_test,fit=True)
+# %%
+
+xgb = XGBClassifier(objective='binary:logistic')
+xgb.fit(x_train, y_train)
+evaluate_model(xgb,x_train,y_train,X_test,y_test,fit=True)
+
+
+# %%
+param_grid={
+   
+    'learning_rate':[1,0.5,0.1,0.01,0.001],
+    'max_depth': [3,5,10,20],
+    'n_estimators':[10,50,100,200]
+    
+}
+grid_xgb= RandomizedSearchCV(XGBClassifier(objective='binary:logistic'),param_grid, verbose=3)
+grid_xgb.fit(x_train,y_train)
+print(grid_xgb.best_params_)
+# %%
+xgb_tuned = XGBClassifier(objective='binary:logistic',learning_rate =0.5,max_depth = 10,n_estimators = 200)
+xgb_tuned.fit(x_train, y_train)
+evaluate_model(xgb_tuned,x_train,y_train,X_test,y_test,fit=True)
+
+# %%
+catboost = CatBoostClassifier()
+catboost.fit(x_train,y_train)
+evaluate_model(catboost,x_train,y_train,X_test,y_test)
+# %%
+cbc = CatBoostClassifier()
+
+#create the grid
+grid = {'max_depth': [3,4,5],'n_estimators':[100, 200, 300]}
+
+#Instantiate GridSearchCV
+gscv = GridSearchCV (estimator = cbc, param_grid = grid, scoring ='accuracy', cv = 5)
+
+#fit the model
+gscv.fit(x_train,y_train)
+
+#returns the estimator with the best performance
+print(gscv.best_estimator_)
+
+#returns the best score
+print(gscv.best_score_)
+
+#returns the best parameters
+print(gscv.best_params_)
+
+
+# %%
+catboost = CatBoostClassifier(max_depth = 5,n_estimators=200)
+evaluate_model(catboost,x_train,y_train,x_test,y_test)
+
+
+# %%
+lgbm = lgb.LGBMClassifier()
+lgbm.fit(x_train, y_train)
+evaluate_model(lgbm,x_train,y_train,X_test,y_test)
+# %%
+
+param_test ={'num_leaves': sp_randint(6, 50), 
+             'min_child_samples': sp_randint(100, 500), 
+             'min_child_weight': [1e-5, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4],
+             'subsample': sp_uniform(loc=0.2, scale=0.8), 
+             'colsample_bytree': sp_uniform(loc=0.4, scale=0.6),
+             'reg_alpha': [0, 1e-1, 1, 2, 5, 7, 10, 50, 100],
+             'reg_lambda': [0, 1e-1, 1, 5, 10, 20, 50, 100],
+               "n_estimators" : [50,100,200,300]}
+
+lgb_clf = lgb.LGBMClassifier(max_depth=7, random_state=314, silent=True, metric='None', n_jobs=4)
+lgb_rs = RandomizedSearchCV(
+    estimator=lgb_clf, param_distributions=param_test, 
+    n_iter=100,
+    scoring='roc_auc',
+    cv=3,
+    refit=True,
+    random_state=314,
+    verbose=True)
+
+lgb_rs.fit(x_train,y_train)
+
+print('Best score reached: {} with params: {} '.format(lgb_rs.best_score_, lgb_rs.best_params_))
+# %%
+tunned_lgb=lgb.LGBMClassifier(n_estimators = 200,colsample_bytree = 0.945551226916892, min_child_samples = 144,min_child_weight = 1e-05,num_leaves=13,reg_alpha = 0.1,reg_lambda = 5,subsample =  0.44782056066342807)
+fit_params={"early_stopping_rounds":30, 
+            "eval_metric" : 'auc', 
+            "eval_set" : [(X_test,y_test)],
+            'eval_names': ['valid'],
+            #'callbacks': [lgb.reset_parameter(learning_rate=learning_rate_010_decay_power_099)],
+            'verbose': 100}
+
+tunned_lgb.fit(x_train,y_train,**fit_params)
+evaluate_model(tunned_lgb,x_train,y_train,X_test,y_test,fit=True)
 # %%
