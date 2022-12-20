@@ -1,36 +1,97 @@
+# Team 1 (Data Ninja)
+
+#### Author : Pranav Chandaliya, Vishesh Bhati, Steven Tian, Nusrat Prithee
+
+## Problem Statement 
+
+# Predicting high-risk customers who are likely to churn for the banking industry
+
+### A  bank is struggling to maintain its strong foothold in the local market due to: 
+
+###     * Rapidly increasing customer churn which leads to revenue loss for the bank
+###     * The decline in overall customer base (high churn rate combined with low acquisition rate), leading to a decline in total market share. 
+###     * Bank want to retain customer to stop revenue loss
+
+#### Data Source : Kaggle
+
+# Data Description :
+### * RowNumber : Row number
+### * CustomerId : Unique Customer ID 
+### * Surname: Last Name of the Customer
+### * CreditScore: Credit score of the customer
+### * Geography:  Country of the customer
+### * Gender: Gender of the customer
+### * Age: Current age of the customer
+### * Tenure: No. Of years customer with the bank
+### * Balance: Account balance of the customers
+### * NumOfProduct: Number of the products used by customer with the bank
+### * HasCrCard: Customer owns credit card or not
+### * isActiveMember: Customer is active member ( Interaction with App/Web Bank Application)
+### * Estimated Salary: Salary of the customers
+### * Exited: Yes if customer churned else no
+
+# Contents :
+### * Loading of dataset, libraries and basic statistics of the data
+### * EDA 
+### * Data Preprocessing  
+###     * Removal of columns
+###     * Encoding of Categorical Varibales
+### * Predictive Modeling 
+###   * Testing different balancing techniques (on Logistic Regression)
+###   * Function to evaluate classifier (Reduce code size and increase reusability of the code)
+###   * Random Forest 
+###   * Hyperparameter tunning of Random Forest
+###   * Boosting model comparision  : XGBoost,CatBoost, LightGBM
+###   * Hyperparameter tunning of Boosting model
+###   * Hyperparameter tunning of boosting models
+###   * Model interpretability using SHAP (SHapley Additive exPlanations)
+###   * Understanding model prediction
+###   * Sample prediction from model
+###   * Efficient probablity Threshold Cut-off for better recall
+
+
 # %%
 # Imorting all the necessary libraries 
 
+### Basic Data Manupulation libraries
 import pandas as pd 
 import numpy as np
+
+###  Data Visualization libraries
+
 import seaborn as sns 
 import plotly
 import plotly.graph_objects as go
 import plotly.express as px
-import os
+import matplotlib.pyplot as plt
+
+###  Modeling and data preprocessing libraries
 from sklearn.linear_model  import  LogisticRegression
 from sklearn.preprocessing import StandardScaler 
 from sklearn.model_selection import train_test_split
-import pandas as pd
-import numpy as np
-from sklearn.metrics import classification_report,accuracy_score,f1_score,recall_score,roc_curve, roc_auc_score
-
-import plotly.express as px
-import matplotlib.pyplot as plt
-import pickle as pk
-from copy import deepcopy
 from imblearn.over_sampling import SMOTE
 from imblearn.combine import SMOTEENN
 from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 import lightgbm as lgb
-from scipy.stats import randint as sp_randint
-from scipy.stats import uniform as sp_uniform
+from sklearn.metrics import classification_report,accuracy_score,f1_score,recall_score,roc_curve, roc_auc_score
+
+
+
+### Model interpretability library
 import shap
 
+## Extras 
+import pickle as pk ## To save model / variables
+from copy import deepcopy
+from scipy.stats import randint as sp_randint
+from scipy.stats import uniform as sp_uniform
+import os
 import warnings
 warnings.filterwarnings("ignore")
+
+print("All libraries sucessfully loaded ")
 # %%
 # %%
 ## Loading the dataset 
@@ -69,32 +130,126 @@ if not os.path.exists("plot_images"):
 
 fig.show()
 # %%
-# %%
 
-fig = px.box(df, x="Exited", y="CreditScore")
-fig.update_traces(quartilemethod="exclusive") # or "inclusive", or "linear" by default
+# print styling
+s1 = '\033[1m' + '\033[96m'
+s2 = '\033[1m' + '\033[4m' + '\033[95m'
+h1 = '\033[1m' + '\033[4m' + '\033[92m'
+e = "\033[0;0m"
+
+
+# %%
+fig = px.histogram(df, x="CreditScore", color="Exited", color_discrete_map={"Exited":"#ffc8dd"}, nbins=60, title="Impact of Credit score on customer churn rate")
+
+fig.update_layout(
+    title="Impact of Credit score on customer churn rate",
+    xaxis_title="Credit Score",
+    yaxis_title="Count",
+    legend_title="Exited",
+)
+
 fig.show()
 
+print(h1 + "Finding:" + e + s1 + "Credit score in general does not have an impact on the churn rate, but in the grpah we can see that Credit score and Churn rate are normally distributed and the maximum population have credit score between 600-700 and this population has highest churn rate as well. Also we can see that churn rate is directely proportional to population. Greater the population in the bin greatr is the churn rate" + e)
+
 # %%
-fig = px.box(df, x="Exited", y="Balance")
-fig.update_traces(quartilemethod="exclusive") # or "inclusive", or "linear" by default
+#2 Balance vs churn rate
+
+fig = px.box(df, x="Balance", color="Exited", color_discrete_map={"Exited":"#ffc8dd"}, title="Impact of Balance on churn rate")
+
+fig.update_layout(
+    title="Impact of Customer Balance on churn rate",
+    xaxis_title="Customer Balance",
+    yaxis_title="Count",
+    legend_title="Exited"
+    
+)
+
 fig.show()
 
+print(h1 + "Finding:" + e + s1 + "From the graph we can see that people with higher balance tend to churn more than the one with the low balance." + e)
+
 # %%
-fig = px.box(df, x="Exited", y="EstimatedSalary")
-fig.update_traces(quartilemethod="exclusive") # or "inclusive", or "linear" by default
+#3 Estimated salary vs churn rate
+
+fig = px.box(df, x="EstimatedSalary", color="Exited", color_discrete_map={"Exited":"#ffc8dd"})
+
+fig.update_layout(
+    title="Impact of Salary on churn rate",
+    xaxis_title="Estimated Salary",
+    yaxis_title="Count",
+    legend_title="Exited"
+)
+
 fig.show()
+
+print(h1 + "Finding:" + e + s1 + "From the graph we can see that Estimated Salary does not have much effect on the customer churn rate the difference is very minute. " + e)
+
 # %%
 
-### Place holder for EDA from all 
+#4 Age vs churn rate
+
+fig = px.histogram(df, x="Age", color="Exited", color_discrete_map={"Exited":"#ffc8dd"})
+
+fig.update_layout(
+    title="Impact of Age on customer churn rate",
+    xaxis_title="Age",
+    yaxis_title="Count",
+    legend_title="Exited"
+)
+
+fig.show()
+
+print(h1 + "Finding:" + e + s1 + "The graph is right skewed for the reatined customer, but the graph looks slightly normal for the exited customers. It can be seen that customer tend to churn more between the age of 40-60." + e)
+# %%
+# Separate each country from Dataset
+geo = df['Geography']
+F = df[df['Geography'] == 'France']
+G = df[df['Geography'] == 'Germany']
+S = df[df['Geography'] == 'Spain']
+
+# General description of countries
+df['Geography'].describe()
+
+churn = df['Geography']
+churn.value_counts()
 
 
+# Distribution of each country in the dataset 
 
+# Separate each country into churn and not churn
+churnF = F[F['Exited'] == 1]
+notchurnF = F[F['Exited'] == 0]
+churnG = G[G['Exited'] == 1]
+notchurnG = G[G['Exited'] == 0]
+churnS = S[S['Exited'] == 1]
+notchurnS = S[S['Exited'] == 0]
+#height = [1500,2000,2500,3000,3500,4000,4500,5000,5500]
 
+plt.xticks(np.arange(0,1.1, step=1))
+plt.hist([churnF['Exited'],notchurnF['Exited'],churnG['Exited'],notchurnG['Exited'],churnS['Exited'],notchurnS['Exited']], 
+        label=['France churn','France not churn','Germany churn','Germany not churn','Spain churn','Spain not churn'],
+        histtype = 'bar', rwidth = 1,bins=[0, 1],edgecolor = 'black')
+plt.xlabel('Churn and not churn')
+plt.ylabel('Number of People')
+plt.legend(loc = 0)
+plt.savefig('Country churn.png')
+plt.show()
 
+# Numbers of churn by country
+print('Total Numbers of France customers churned',len(churnF))
+print('Total Numbers of Germany customers churned',len(churnG))
+print('Total Numbers of Spain customers churned',len(churnS))
 
+# Churn rate of each country
+print('France churn rate',round(len(churnF)/len(F)*100,2))
+print('Germany churn rate',round(len(churnG)/len(G)*100,2))
+print('Spain churn rate',round(len(churnS)/len(S)*100,2))
 
-
+print('\n')
+print('Germany has the highest number of customers churned among all countries with 814 customers churned.')
+print('\n')
+print('Germany also has the highest churn rate of 32.44%','\n')
 
 
 
@@ -136,22 +291,31 @@ log_reg = LogisticRegression()
 log_reg.fit(X_train,Y_train)
 # %%
 
+## Creating function that will evaluate model. 
+## It will help us to reduced the code size and increase reusability of code
 
+def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False):
+    '''
+    Model Evaluation for Classifier
+    :param  model : model object 
+    :param x_train: Train features
+    :param y_train: Train Target 
+    :param x_test: Test features
+    :param y_test: Test Target 
+    :param fit bool : True if model is already fited else false
 
-def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph = False):
-    
-    if fit== False:
+    :return: Train and Test Classification report and AUC- ROC Graph
+    '''
+    if fit == False:
         model.fit(x_train,y_train)
         
     
     train_pred=model.predict(x_train)
     print("Training report")
-    print(accuracy_score(y_train,train_pred))
     print(classification_report(y_train, train_pred))
     
     print("Testing report")
     test_pred=model.predict(x_test)    
-    print(f1_score(y_test,test_pred))
     print(classification_report(y_test, test_pred))
 
     y_pred_prob=model.predict_proba(x_test)
@@ -174,7 +338,6 @@ def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph
     
 # %%
 evaluate_model(log_reg,X_train,Y_train,X_test,y_test,fit=True)
-log_reg.coef_
 # %%
 ##Base model on SMOTE :
 ## Using SMOTE To balance Training dataset 
@@ -274,11 +437,11 @@ cbc = CatBoostClassifier()
 #create the grid
 grid = {'max_depth': [3,4,5,6,7,8,9],'n_estimators':[100, 200, 300]}
 
-#Instantiate GridSearchCV
+#instantiate  GridSearchCV
 gscv = GridSearchCV (estimator = cbc, param_grid = grid, scoring = "roc_auc_ovr"
 , cv = 5)
 
-#fit the model
+#fit the model using grid search
 gscv.fit(x_train,y_train)
 
 #returns the estimator with the best performance
@@ -349,16 +512,24 @@ catboost_tuned.predict_proba([814,27,5,10000,3,1,1,90000,0,0,1])
 
 # %%
 def efficient_cutoff(actual_value,predicted):
+    '''
+    Model probablity threshold cutoff plot
+    :param  actual_value :  Actual  target values
+    :param predicted: Predicted probabilities from the model
+ 
+
+    :return: Train and Test Classification report and AUC- ROC Graph
+    '''
     probability_cutoff = []
     accuracy_score_val = []
     recall_score_val=[]
-    for i in range(30,50,2):
+    for i in range(30,50,2): ## Trying different probablity threshold values
         predicted_x = deepcopy(predicted)
-        predicted_x[predicted_x >= i / 100] = 1
-        predicted_x[predicted_x < i / 100] = 0
+        predicted_x[predicted_x >= i / 100] = 1 ## Classifying class 1 as greater than threshold
+        predicted_x[predicted_x < i / 100] = 0 ## Classifying class 0 as less then threshold
         probability_cutoff.append(i/100)
-        accuracy_score_val.append(accuracy_score(actual_value,predicted_x))
-        recall_score_val.append(recall_score(actual_value,predicted_x))
+        accuracy_score_val.append(accuracy_score(actual_value,predicted_x)) ## Calulating Accuracy Scores
+        recall_score_val.append(recall_score(actual_value,predicted_x)) ##  Caluclating Recall Scores
         
     
     return (probability_cutoff,accuracy_score_val,recall_score_val)
@@ -371,5 +542,11 @@ pred= catboost_tuned.predict_proba(X_test)
 efficient_cutoff(y_test,pred[:,1])
 probability_cutoff,accuracy_score_val,recall_score_val=efficient_cutoff(y_test,pred[:,1])
     
-fig = px.scatter( x=accuracy_score_val, y=recall_score_val,text=probability_cutoff, title='Threshold cutoff plot')
+fig = px.scatter( x=accuracy_score_val, y=recall_score_val,text=probability_cutoff, title='Threshold cutoff plot', labels={
+                     "y":"Recall ",
+                    "x": "Accuracy",
+                     },)
 fig.show()
+
+## We can observe that 0.38 could be good threshold value to improve model further
+# %%
