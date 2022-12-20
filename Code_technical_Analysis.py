@@ -1,10 +1,9 @@
 # %%
 # Imorting all the necessary libraries 
 
-import pandas as pd
+import pandas as pd 
 import numpy as np
 import seaborn as sns 
-import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objects as go
 import plotly.express as px
@@ -14,10 +13,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
-from sklearn.metrics import classification_report
-from sklearn.metrics import accuracy_score,f1_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import  roc_curve, roc_auc_score
+from sklearn.metrics import classification_report,accuracy_score,f1_score,recall_score,roc_curve, roc_auc_score
+
 import plotly.express as px
 import matplotlib.pyplot as plt
 import pickle as pk
@@ -25,7 +22,15 @@ from copy import deepcopy
 from imblearn.over_sampling import SMOTE
 from imblearn.combine import SMOTEENN
 from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
+from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
+import lightgbm as lgb
+from scipy.stats import randint as sp_randint
+from scipy.stats import uniform as sp_uniform
+import shap
 
+import warnings
+warnings.filterwarnings("ignore")
 # %%
 # %%
 ## Loading the dataset 
@@ -88,63 +93,6 @@ fig.show()
 
 
 
-# %%
-# Separate each country from Dataset
-geo = df['Geography']
-F = df[df['Geography'] == 'France']
-G = df[df['Geography'] == 'Germany']
-S = df[df['Geography'] == 'Spain']
-
-# General description of countries
-df['Geography'].describe()
-
-#Pie chart of country country (Germany, Spain, France) with highest churn rate
-churn = df['Geography']
-churn.value_counts().plot(kind='pie')
-plt.xlabel('# of Churn by country', fontsize=12)
-plt.savefig('pie_country_distribution')
-plt.show()
-
-# Distribution of each country in the dataset 
-
-# Separate each country into churn and not churn
-churnF = F[F['Exited'] == 1]
-notchurnF = F[F['Exited'] == 0]
-churnG = G[G['Exited'] == 1]
-notchurnG = G[G['Exited'] == 0]
-churnS = S[S['Exited'] == 1]
-notchurnS = S[S['Exited'] == 0]
-#height = [1500,2000,2500,3000,3500,4000,4500,5000,5500]
-
-plt.xticks(np.arange(0,1.1, step=1))
-plt.hist([churnF['Exited'],notchurnF['Exited'],churnG['Exited'],notchurnG['Exited'],churnS['Exited'],notchurnS['Exited']], 
-        label=['France churn','France not churn','Germany churn','Germany not churn','Spain churn','Spain not churn'],
-        histtype = 'bar', rwidth = 1,bins=[0, 1],edgecolor = 'black')
-plt.xlabel('Churn and not churn')
-plt.ylabel('Number of People')
-plt.legend(loc = 0)
-plt.savefig('Country churn.png')
-plt.show()
-
-# Numbers of churn by country
-print('Total Numbers of France customers churned',len(churnF))
-print('Total Numbers of Germany customers churned',len(churnG))
-print('Total Numbers of Spain customers churned',len(churnS))
-
-# Churn rate of each country
-print('France churn rate',round(len(churnF)/len(F)*100,2))
-print('Germany churn rate',round(len(churnG)/len(G)*100,2))
-print('Spain churn rate',round(len(churnS)/len(S)*100,2))
-
-print('\n')
-print('Germany has the highest number of customers churned among all countries with 814 customers churned.')
-print('\n')
-print('Germany also has the highest churn rate of 32.44%','\n')
-
-
-
-
-
 
 
 
@@ -174,6 +122,8 @@ y=df["Exited"]
 # %%
 
 ## Base model on imbalance dataset
+
+## We are using standard scaler as Variables that are measured at different scales do not contribute equally to the model fitting & model learned function and might end up creating a bias.
 scalar = StandardScaler()
 X_scaled = scalar.fit_transform(x)
 X_train, X_test, Y_train, y_test = train_test_split(X_scaled, y,stratify=y, test_size=0.25,random_state=1)
@@ -185,20 +135,7 @@ log_reg = LogisticRegression()
 
 log_reg.fit(X_train,Y_train)
 # %%
-def efficient_cutoff(actual_value,predicted):
-    probability_cutoff = []
-    accuracy_score_val = []
-    recall_score_val=[]
-    for i in range(30,50,2):
-        predicted_x = deepcopy(predicted)
-        predicted_x[predicted_x >= i / 100] = 1
-        predicted_x[predicted_x < i / 100] = 0
-        probability_cutoff.append(i/100)
-        accuracy_score_val.append(accuracy_score(actual_value,predicted_x))
-        recall_score_val.append(recall_score(actual_value,predicted_x))
-        
-    
-    return (probability_cutoff,accuracy_score_val,recall_score_val)
+
 
 
 def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph = False):
@@ -213,10 +150,7 @@ def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph
     print(classification_report(y_train, train_pred))
     
     print("Testing report")
-    test_pred=model.predict(x_test)
-    print("Accuracy")
-    
-    print("F1_Score")
+    test_pred=model.predict(x_test)    
     print(f1_score(y_test,test_pred))
     print(classification_report(y_test, test_pred))
 
@@ -234,12 +168,7 @@ def evaluate_model(model,x_train,y_train,x_test,y_test,fit=False,threshold_graph
     plt.legend()
     plt.show()
     
-    if threshold_graph == True:
-        
-        probability_cutoff,accuracy_score_val,recall_score_val=efficient_cutoff(y_test,y_pred_prob[:,1])
     
-        fig = px.scatter( x=accuracy_score_val, y=recall_score_val,text=probability_cutoff, title='Threshold cutoff plot')
-        fig.show()
 
 
     
@@ -260,13 +189,15 @@ log_reg_smote.fit(x_train,y_train)
 
 print("Training data size")
 print(x_train.shape)
-print(y_train.values_count())
+print(y_train.value_counts())
 evaluate_model(log_reg_smote,x_train,y_train,X_test,y_test,fit=True)
 
 
 # %%
 smt = SMOTEENN(random_state=42)
 x_train, y_train = smt.fit_resample(X_train, Y_train)
+x_train=pd.DataFrame(x_train,columns = x.columns)
+X_test=pd.DataFrame(X_test,columns = x.columns)
 
 log_reg_smote_ENN = LogisticRegression()
 
@@ -295,11 +226,11 @@ grid_param = {
     'min_samples_split': range(2,10,1),
     'max_features' : ['auto','log2']
 }
-rand0m_search = RandomizedSearchCV(estimator=clf,param_distributions=grid_param,cv=5,n_jobs =-1,verbose = 3)
-rand0m_search.fit(x_train,y_train)
+random_search = RandomizedSearchCV(estimator=rf_clf,param_distributions=grid_param,cv=5,n_jobs =-1,verbose = 3)
+random_search.fit(x_train,y_train)
 # %%
 # %%
-print(rand0m_search.best_params_)
+print(random_search.best_params_)
 # %%
 rand_clf_tune = RandomForestClassifier(criterion= 'entropy',
  max_depth = 14,
@@ -308,64 +239,137 @@ rand_clf_tune = RandomForestClassifier(criterion= 'entropy',
  min_samples_split= 4,
  n_estimators = 115,random_state=6)
 
-rand_clf_tune.fit(X_train,y_train)
-evaluate_model(rand_clf_tune,X_train,y_train,X_test,y_test,fit=True)
+rand_clf_tune.fit(x_train,y_train)
+evaluate_model(rand_clf_tune,x_train,y_train,X_test,y_test,fit=True)
+# %%
+
+xgb = XGBClassifier(objective='binary:logistic')
+xgb.fit(x_train, y_train)
+evaluate_model(xgb,x_train,y_train,X_test,y_test,fit=True)
+
 
 # %%
-#KNN Model
-print("Train Data Shape")
-print(x_train.shape)
-print(y_train.shape)
-
-print("Test Data Shape")
-print(X_test.shape)
-print(y_test.shape)
-
-#Import KNN package
-from sklearn.neighbors import KNeighborsClassifier
-knn = KNeighborsClassifier(n_neighbors=1) # instantiate with n value given
-knn.fit(X_train,y_train)
-y_pred = knn.predict(X_train)
-y_pred = knn.predict_proba(X_train)
-print(y_pred)
-print(knn.score(X_train,y_train))
-print('\n','Next Line')
-from sklearn.neighbors import KNeighborsClassifier
-knn_split = KNeighborsClassifier(n_neighbors=1)
-knn_split.fit(X_train,y_train)
-ytest_pred = knn_split.predict(X_test)
-ytest_pred
-print(knn_split.score(X_test,y_test))
-
-from sklearn.model_selection import GridSearchCV
-para = {'n_neighbors':[1,2,3,5,6,7,9,10]}
-knn_cv = KNeighborsClassifier()
-from sklearn.model_selection import cross_val_score
-cv_results = cross_val_score(knn_cv,X_train, y_train, cv=7)
-n = GridSearchCV(knn_cv,para,cv=7)
-n.fit(X_train,y_train)
-print({(n.best_params_)['n_neighbors']})
-print(n.best_score_)
-print(cv_results) 
-print(np.mean(cv_results)) 
+param_grid={
+   
+    'learning_rate':[1,0.5,0.1,0.01,0.001],
+    'max_depth': [3,5,10,20],
+    'n_estimators':[10,50,100,200]
+    
+}
+grid_xgb= RandomizedSearchCV(XGBClassifier(objective='binary:logistic'),param_grid, verbose=3)
+grid_xgb.fit(x_train,y_train)
+print(grid_xgb.best_params_)
 # %%
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, plot_confusion_matrix
- 
-cm = confusion_matrix(y_test,ytest_pred)
-print(cm)
- 
-color = 'white'
-matrix = plot_confusion_matrix(knn, X_test, y_test, cmap=plt.cm.Blues)
-matrix.ax_.set_title('Confusion Matrix', color=color)
-plt.xlabel('Predicted Label', color=color)
-plt.ylabel('True Label', color=color)
-plt.gcf().axes[0].tick_params(colors=color)
-plt.gcf().axes[1].tick_params(colors=color)
-plt.show()
+xgb_tuned = XGBClassifier(objective='binary:logistic',learning_rate =0.5,max_depth = 10,n_estimators = 200)
+xgb_tuned.fit(x_train, y_train)
+evaluate_model(xgb_tuned,x_train,y_train,X_test,y_test,fit=True)
 
 # %%
-from sklearn.metrics import classification_report
- 
-print(classification_report(y_test, ytest_pred))
+catboost = CatBoostClassifier()
+catboost.fit(x_train,y_train)
+evaluate_model(catboost,x_train,y_train,X_test,y_test,fit=True)
+# %%
+cbc = CatBoostClassifier()
 
+#create the grid
+grid = {'max_depth': [3,4,5,6,7,8,9],'n_estimators':[100, 200, 300]}
+
+#Instantiate GridSearchCV
+gscv = GridSearchCV (estimator = cbc, param_grid = grid, scoring = "roc_auc_ovr"
+, cv = 5)
+
+#fit the model
+gscv.fit(x_train,y_train)
+
+#returns the estimator with the best performance
+print(gscv.best_estimator_)
+
+#returns the best score
+print(gscv.best_score_)
+
+#returns the best parameters
+print(gscv.best_params_)
+
+
+# %%
+catboost_tuned = CatBoostClassifier(max_depth = 9,n_estimators=200)
+catboost_tuned.fit(x_train,y_train)
+evaluate_model(catboost_tuned,x_train,y_train,X_test,y_test,fit=True)
+
+
+# %%
+lgbm = lgb.LGBMClassifier()
+lgbm.fit(x_train, y_train)
+evaluate_model(lgbm,x_train,y_train,X_test,y_test,fit=True)
+# %%
+
+param_test ={'num_leaves': sp_randint(6, 50), 
+             
+               "n_estimators" : [50,100,200,300]}
+
+lgb_clf = lgb.LGBMClassifier(max_depth=7, random_state=314, silent=True, metric='None', n_jobs=4)
+lgb_rs = RandomizedSearchCV(
+    estimator=lgb_clf, param_distributions=param_test, 
+    n_iter=100,
+    scoring='roc_auc',
+    cv=3,
+    refit=True,
+    random_state=314,
+    verbose=True)
+
+lgb_rs.fit(x_train,y_train)
+
+print('Best score reached: {} with params: {} '.format(lgb_rs.best_score_, lgb_rs.best_params_))
+# %%
+tunned_lgb=lgb.LGBMClassifier(n_estimators = 300,num_leaves = 44)
+fit_params={"early_stopping_rounds":30, 
+            "eval_metric" : 'auc', 
+            "eval_set" : [(X_test,y_test)],
+            'eval_names': ['valid'],
+            #'callbacks': [lgb.reset_parameter(learning_rate=learning_rate_010_decay_power_099)],
+            'verbose': 100}
+
+tunned_lgb.fit(x_train,y_train,**fit_params)
+evaluate_model(tunned_lgb,x_train,y_train,X_test,y_test,fit=True)
+# %%
+shap.initjs()
+
+explainer = shap.TreeExplainer(catboost_tuned)
+
+shap_values = explainer.shap_values(X_test)
+shap.summary_plot(shap_values, X_test,)
+
+
+
+# %%
+## Predicting for Vishesh
+
+catboost_tuned.predict_proba([814,27,5,10000,3,1,1,90000,0,0,1])
+
+
+# %%
+def efficient_cutoff(actual_value,predicted):
+    probability_cutoff = []
+    accuracy_score_val = []
+    recall_score_val=[]
+    for i in range(30,50,2):
+        predicted_x = deepcopy(predicted)
+        predicted_x[predicted_x >= i / 100] = 1
+        predicted_x[predicted_x < i / 100] = 0
+        probability_cutoff.append(i/100)
+        accuracy_score_val.append(accuracy_score(actual_value,predicted_x))
+        recall_score_val.append(recall_score(actual_value,predicted_x))
+        
+    
+    return (probability_cutoff,accuracy_score_val,recall_score_val)
+
+
+
+
+# %%
+pred= catboost_tuned.predict_proba(X_test)
+efficient_cutoff(y_test,pred[:,1])
+probability_cutoff,accuracy_score_val,recall_score_val=efficient_cutoff(y_test,pred[:,1])
+    
+fig = px.scatter( x=accuracy_score_val, y=recall_score_val,text=probability_cutoff, title='Threshold cutoff plot')
+fig.show()
